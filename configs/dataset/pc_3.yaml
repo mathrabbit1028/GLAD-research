@@ -1,0 +1,10 @@
+name: PC-3
+scale: large
+data_root: data/TU
+normal_train_fraction: 0.8
+test_protocol: remaining_normals_plus_all_anomalies
+batch_size: 512
+latent_dim: 512
+categorical_tail_dim: 45
+reported_graphs: 27509
+reported_node_features: 45

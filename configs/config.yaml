@@ -1,0 +1,18 @@
+defaults:
+  - model: agdiff
+  - dataset: mutag
+  - _self_
+
+project: glad-research
+seed: 0
+trials: 1
+device: auto
+output_dir: outputs
+reproducibility:
+  deterministic: true
+  split_seed_matches_run_seed: true
+evaluation:
+  score_orientation: higher_is_more_anomalous
+  threshold_method: training_normal_quantile
+  threshold_quantile: 0.95
+  metrics: [auc, f1, accuracy, latency_ms_per_graph, peak_cuda_memory_mb]

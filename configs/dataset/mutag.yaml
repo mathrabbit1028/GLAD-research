@@ -1,0 +1,10 @@
+name: MUTAG
+scale: moderate
+data_root: data/TU
+normal_train_fraction: 0.8
+test_protocol: remaining_normals_plus_equal_or_fewer_anomalies
+batch_size: 16
+latent_dim: 16
+categorical_tail_dim: 7
+reported_graphs: 188
+reported_node_features: 7

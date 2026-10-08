@@ -1,0 +1,5 @@
+torch
+torch-geometric
+numpy>=1.23
+PyYAML
+scipy
