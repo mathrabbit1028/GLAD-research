@@ -1,0 +1,16 @@
+name: gladc
+adapter: src.models.benchmarks.ubgold.UBGOLDAdapter
+architecture:
+  hidden_dim: 256
+  output_dim: 128
+  dropout: 0.1
+  max_nodes: ${dataset.max_nodes}
+training:
+  epochs: 100
+  learning_rate: 0.0001
+  weight_decay: 0.0
+  reference_count: 8
+  adaptive: false
+  alpha: 0.0
+role: benchmark
+display_name: GLADC

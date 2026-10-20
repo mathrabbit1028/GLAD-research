@@ -1,0 +1,10 @@
+{
+  "repository": "https://github.com/MathAdventurer/LGKDE",
+  "commit": "1bba5ef00067230fa327a630d67cabbd53fdf523",
+  "local_sha256": {
+    "ng.py": "67dbccce2b9a069f8fc8b70c88a8a4a3ae10946698616a71eed8772f93dbdea8",
+    "__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "model.py": "d76a020eef318dda267cd980f90c20762d4151b8cec74e6ac5c4ea87b90b3306",
+    "losses.py": "e8c61cc201793dc72902a2e07889809fbb4938f2788d1bbe4c520289a97b6fcc"
+  }
+}

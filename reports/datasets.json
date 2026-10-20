@@ -1,0 +1,163 @@
+[
+  {
+    "config": "mutag",
+    "name": "MUTAG",
+    "graphs": 188,
+    "raw_class_counts": {
+      "1": 125,
+      "-1": 63
+    },
+    "max_nodes": 28,
+    "processed_path": "data/TU/MUTAG/processed/data.pt",
+    "processed_present": true,
+    "source": "User-provided TU raw and processed files; read-only metadata inventory"
+  },
+  {
+    "config": "proteins",
+    "name": "PROTEINS",
+    "graphs": 1113,
+    "raw_class_counts": {
+      "1": 663,
+      "2": 450
+    },
+    "max_nodes": 620,
+    "processed_path": "data/TU/PROTEINS/processed/data.pt",
+    "processed_present": true,
+    "source": "User-provided TU raw and processed files; read-only metadata inventory"
+  },
+  {
+    "config": "dd",
+    "name": "DD",
+    "graphs": 1178,
+    "raw_class_counts": {
+      "1": 691,
+      "2": 487
+    },
+    "max_nodes": 5748,
+    "processed_path": "data/TU/DD/processed/data.pt",
+    "processed_present": true,
+    "source": "User-provided TU raw and processed files; read-only metadata inventory"
+  },
+  {
+    "config": "enzymes",
+    "name": "ENZYMES",
+    "graphs": 600,
+    "raw_class_counts": {
+      "6": 100,
+      "5": 100,
+      "1": 100,
+      "2": 100,
+      "3": 100,
+      "4": 100
+    },
+    "max_nodes": 126,
+    "processed_path": "data/TU/ENZYMES/processed/data.pt",
+    "processed_present": true,
+    "source": "User-provided TU raw and processed files; read-only metadata inventory"
+  },
+  {
+    "config": "dhfr",
+    "name": "DHFR",
+    "graphs": 756,
+    "raw_class_counts": {
+      "1": 461,
+      "-1": 295
+    },
+    "max_nodes": 71,
+    "processed_path": "data/TU/DHFR/processed/data.pt",
+    "processed_present": true,
+    "source": "User-provided TU raw and processed files; read-only metadata inventory"
+  },
+  {
+    "config": "bzr",
+    "name": "BZR",
+    "graphs": 405,
+    "raw_class_counts": {
+      "-1": 319,
+      "1": 86
+    },
+    "max_nodes": 57,
+    "processed_path": "data/TU/BZR/processed/data.pt",
+    "processed_present": true,
+    "source": "User-provided TU raw and processed files; read-only metadata inventory"
+  },
+  {
+    "config": "cox2",
+    "name": "COX2",
+    "graphs": 467,
+    "raw_class_counts": {
+      "-1": 365,
+      "1": 102
+    },
+    "max_nodes": 56,
+    "processed_path": "data/TU/COX2/processed/data.pt",
+    "processed_present": true,
+    "source": "User-provided TU raw and processed files; read-only metadata inventory"
+  },
+  {
+    "config": "aids",
+    "name": "AIDS",
+    "graphs": 2000,
+    "raw_class_counts": {
+      "0": 400,
+      "1": 1600
+    },
+    "max_nodes": 95,
+    "processed_path": "data/TU/AIDS/processed/data.pt",
+    "processed_present": true,
+    "source": "User-provided TU raw and processed files; read-only metadata inventory"
+  },
+  {
+    "config": "imdb_binary",
+    "name": "IMDB-BINARY",
+    "graphs": 1000,
+    "raw_class_counts": {
+      "0": 500,
+      "1": 500
+    },
+    "max_nodes": 136,
+    "processed_path": "data/TU/IMDB-BINARY/processed/data.pt",
+    "processed_present": true,
+    "source": "User-provided TU raw and processed files; read-only metadata inventory"
+  },
+  {
+    "config": "nci1",
+    "name": "NCI1",
+    "graphs": 4110,
+    "raw_class_counts": {
+      "0": 2053,
+      "1": 2057
+    },
+    "max_nodes": 111,
+    "processed_path": "data/TU/NCI1/processed/data.pt",
+    "processed_present": true,
+    "source": "User-provided TU raw and processed files; read-only metadata inventory"
+  },
+  {
+    "config": "collab",
+    "name": "COLLAB",
+    "graphs": 5000,
+    "raw_class_counts": {
+      "1": 2600,
+      "2": 775,
+      "3": 1625
+    },
+    "max_nodes": 492,
+    "processed_path": "data/TU/COLLAB/processed/data.pt",
+    "processed_present": true,
+    "source": "User-provided TU raw and processed files; read-only metadata inventory"
+  },
+  {
+    "config": "reddit_binary",
+    "name": "REDDIT-BINARY",
+    "graphs": 2000,
+    "raw_class_counts": {
+      "1": 1000,
+      "-1": 1000
+    },
+    "max_nodes": 3782,
+    "processed_path": "data/TU/REDDIT-BINARY/processed/data.pt",
+    "processed_present": true,
+    "source": "User-provided TU raw and processed files; read-only metadata inventory"
+  }
+]

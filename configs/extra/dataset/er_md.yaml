@@ -1,0 +1,9 @@
+name: ER_MD
+max_nodes: 43
+scale: moderate
+data_root: data/TU
+batch_size: 16
+latent_dim: 16
+categorical_tail_dim: 10
+reported_graphs: 446
+reported_node_features: 10

@@ -23,11 +23,23 @@ def classification_metrics(labels: Sequence[int], scores: Sequence[float], thres
         positive_rank_sum += midrank * sum(label for _, label in ranked[start:end])
         start = end
     auc = (positive_rank_sum - positives * (positives + 1) / 2) / (positives * negatives)
+    # Anomaly-positive average precision, grouping equal scores at one threshold.
+    descending = sorted(zip(scores, labels), reverse=True)
+    average_precision, true_positives, start = 0., 0, 0
+    while start < len(descending):
+        end = start + 1
+        while end < len(descending) and descending[end][0] == descending[start][0]:
+            end += 1
+        added = sum(label for _, label in descending[start:end])
+        true_positives += added
+        average_precision += (added / positives) * (true_positives / end)
+        start = end
     predictions = [int(score >= threshold) for score in scores]
     tp = sum(label == prediction == 1 for label, prediction in zip(labels, predictions))
     fp = sum(label == 0 and prediction == 1 for label, prediction in zip(labels, predictions))
     fn = sum(label == 1 and prediction == 0 for label, prediction in zip(labels, predictions))
     correct = sum(label == prediction for label, prediction in zip(labels, predictions))
     return {"auc": float(auc),
+            "average_precision": float(average_precision),
             "f1": float(2 * tp / (2 * tp + fp + fn)) if 2 * tp + fp + fn else 0.0,
             "accuracy": float(correct / len(labels))}

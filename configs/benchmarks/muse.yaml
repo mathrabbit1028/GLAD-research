@@ -1,0 +1,21 @@
+name: muse
+adapter: src.models.benchmarks.muse.MUSEAdapter
+architecture:
+  hidden_dim: 32
+  num_layers: 3
+  dropout: 0.3
+  edge_drop_probability: 0.5
+  positive_weight_exponent: 1.0
+  classifier_hidden_dim: 32
+  classifier_layers: 3
+training:
+  epochs: 200
+  learning_rate: 0.001
+  weight_decay: 1.0e-06
+  classifier_epochs: 500
+  classifier_learning_rate: 0.001
+  classifier_weight_decay: 0.0001
+  scheduler_period: 50
+  std_epsilon: 1.0e-06
+role: benchmark
+display_name: MUSE

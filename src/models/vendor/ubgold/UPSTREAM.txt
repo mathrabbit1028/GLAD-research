@@ -1,0 +1,44 @@
+Source: https://github.com/UB-GOLD/UB-GOLD
+Commit: c940457bc3be46fbd26cdaea12386a5c0a82f697
+Retrieved: 2026-10-19
+
+nn/{ocgtl,encoder,signet,gladc}.py are byte-for-byte copies from
+GAOOD/nn. nn/cvtgad.py has only a device-placement patch: attention temperature
+k is a registered buffer, and device comes from the caller rather than global
+CUDA availability. It also has normalized line endings. See provenance.json
+for upstream/local hashes and commits of the four active author repositories.
+The unused GOOD-D core and its adapter branch have been removed.
+
+Licenses: UB-GOLD's MIT LICENSE is retained. OCGTL-derived code (ocgtl.py and
+myGIN/GraphNorm portions of encoder.py) originates in Bosch's AGPL-3.0 code;
+its license and third-party notice are retained in licenses/. Original SIGNET,
+GLADC and GOOD-D MIT notices from the source distribution are also retained.
+CVTGAD's author checkout has
+no license file; the imported version is from the MIT-licensed UB-GOLD release.
+The UB-GOLD MIT notice does not replace upstream notices.
+
+Adapter protocol (src/models/benchmarks/ubgold.py):
+- Existing local TU features/splits; no graph labels supplied to models.
+- Fixed final epoch, no test-selected checkpoint or hyperparameter search.
+- Adam, model-specific fixed YAML budgets; not a paper reproduction.
+- Training shuffles all normal graphs and merges a singleton final minibatch
+  into its predecessor; no normal graph is discarded or duplicated.
+- SIGNET uses endpoint-averaged node features as edge features (the official
+  input_dim_edge=0 branch), consistently with other local node-feature models.
+  Edgeless graphs receive self loops so their dual hypergraph is nonempty.
+- CVTGAD structural encodings follow UB-GOLD's sparse random-walk
+  diagonal and degree one-hot code, with zero inverse degree for isolates.
+- SIGNET/CVTGAD evaluation scores each query with eight fixed normal
+  training references; queries do not interact with other test graphs. This
+  differs from the released test-batch contrastive scoring. Context, training
+  loss normalization statistics are checkpointed.
+- GLADC preserves padded reconstruction and perturbed-encoder contrastive
+  training. Perturbed parameters are copied without storage aliasing and do
+  not accumulate unused gradients. Inference reduces node errors per graph
+  (equivalent to official batch-size-one scoring), supporting arbitrary batch
+  sizes. Padding is fixed by the dataset config; oversize graphs fail clearly.
+
+Paper figures come from UB-GOLD Table 3 (arXiv:2406.15523v2). Its Section 3.3
+explicitly tunes hyperparameters on the test set to report upper bounds.
+Those figures are motivation for inclusion, not expected unbiased local scores
+or evidence that every selected method is a current 2026 state-of-the-art leader.

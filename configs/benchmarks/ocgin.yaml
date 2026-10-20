@@ -1,0 +1,16 @@
+name: ocgin
+adapter: src.models.benchmarks.ocgin.OCGINAdapter
+architecture:
+  hidden_dim: 32
+  num_layer: 4
+  norm_layer: gn
+  aggregation: add
+  bias: false
+training:
+  epochs: 500
+  learning_rate: 0.001
+  weight_decay: 0.0
+  scheduler_step_size: 100
+  scheduler_gamma: 0.5
+role: benchmark
+display_name: OCGIN

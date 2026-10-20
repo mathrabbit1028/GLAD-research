@@ -4,12 +4,13 @@ from importlib import import_module
 
 import torch
 
-from ..utils.config import Config
+from ..utils.config import Config, validate_model_config
 from .base_model import BaseAnomalyModel
 
 
 def create_model(input_dim: int, config: Config, device: torch.device) -> BaseAnomalyModel:
     """Load a configured adapter that implements the common model interface."""
+    validate_model_config(config)
     dotted_path = config.get("adapter")
     if not isinstance(dotted_path, str) or not dotted_path.startswith("src.models."):
         raise ValueError(f"Invalid model adapter path: {dotted_path!r}")

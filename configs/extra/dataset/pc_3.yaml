@@ -1,0 +1,9 @@
+name: PC-3
+max_nodes: 113
+scale: large
+data_root: data/TU
+batch_size: 512
+latent_dim: 512
+categorical_tail_dim: 45
+reported_graphs: 27509
+reported_node_features: 45

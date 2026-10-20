@@ -1,0 +1,8 @@
+name: IMDB-BINARY
+max_nodes: auto
+data_root: data/TU
+batch_size: 16
+latent_dim: 16
+categorical_tail_dim: 0
+reported_graphs: 1000
+download_url: https://www.chrsmrrs.com/graphkerneldatasets/IMDB-BINARY.zip

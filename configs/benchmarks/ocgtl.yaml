@@ -1,0 +1,18 @@
+name: ocgtl
+adapter: src.models.benchmarks.ubgold.UBGOLDAdapter
+architecture:
+  hidden_dim: 32
+  num_layer: 4
+  num_trans: 6
+  norm_layer: gn
+  aggregation: add
+  bias: false
+training:
+  epochs: 500
+  learning_rate: 0.001
+  weight_decay: 0.0
+  reference_count: 8
+  adaptive: false
+  alpha: 0.0
+role: benchmark
+display_name: OCGTL

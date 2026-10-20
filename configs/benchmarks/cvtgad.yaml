@@ -1,0 +1,18 @@
+name: cvtgad
+adapter: src.models.benchmarks.ubgold.UBGOLDAdapter
+architecture:
+  hidden_dim: 28
+  num_layer: 5
+  rw_dim: 14
+  dg_dim: 14
+  GNN_Encoder: GCN
+  graph_level_pool: global_mean_pool
+training:
+  epochs: 1000
+  learning_rate: 0.0001
+  weight_decay: 0.0
+  reference_count: 8
+  adaptive: true
+  alpha: 0.6
+role: benchmark
+display_name: CVTGAD

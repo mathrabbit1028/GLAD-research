@@ -1,0 +1,5 @@
+# Page 1 of reports/normal_only_graph_anomaly_detection_report.pdf.
+name: normal_only_graph_anomaly_detection
+models: [lgkde, signet, muse, uniform, cvtgad, gladc, ocgin, ocgtl, glocalkd]
+datasets: [mutag, proteins, dd, enzymes, dhfr, bzr, cox2, aids, imdb_binary, nci1, collab, reddit_binary]
+seeds: [0, 1, 2, 3, 4]

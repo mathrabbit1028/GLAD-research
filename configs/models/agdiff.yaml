@@ -1,0 +1,28 @@
+name: agdiff
+role: candidate
+display_name: AGDiff
+adapter: src.models.candidates.agdiff.AGDiffAdapter
+validator: src.models.candidates.agdiff_config.validate_config
+architecture:
+  backbone: GIN
+  gin_layers: 3
+  detector_spectral_norm: false
+  hidden_dim: 64
+  latent_dim: 16
+  # Same all-pairs VAE objective, evaluated in bounded row blocks.
+  reconstruction_block_size: 512
+  # Above this size, retain the existing sampled sparse pseudo-graph decoder.
+  dense_decode_max_nodes: 512
+training:
+  optimizer: Adam
+  learning_rate: 0.001
+  weight_decay: 0.0
+  pretrain_epochs: 100
+  joint_epochs: 200
+  kl_coefficient: 0.001
+  diffusion_steps: 1000
+  lambda_diff: 1.0
+  gradient_clip_norm: 5.0
+  reverse_checkpointing: true
+  reverse_chunk_size: 16
+# Batching is controlled by dataset.batch_size in the TUI's Dataset scope.

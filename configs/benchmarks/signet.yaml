@@ -1,0 +1,20 @@
+name: signet
+adapter: src.models.benchmarks.ubgold.UBGOLDAdapter
+architecture:
+  hidden_dim: 16
+  encoder_layers: 3
+  pooling: add
+  readout: concat
+  explainer_model: gin
+  explainer_layers: 5
+  explainer_hidden_dim: 8
+  explainer_readout: add
+training:
+  epochs: 500
+  learning_rate: 0.0001
+  weight_decay: 0.0
+  reference_count: 8
+  adaptive: false
+  alpha: 0.0
+role: benchmark
+display_name: SIGNET

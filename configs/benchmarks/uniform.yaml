@@ -1,0 +1,28 @@
+name: uniform
+adapter: src.models.benchmarks.uniform.UniFORMAdapter
+architecture:
+  hidden_dim: 64
+  num_layers: 2
+  community_size: 4
+  node_samples: 16
+  edge_samples: 16
+  walk_samples: 16
+  restart_probability: 0.15
+  sampling_seed: 0
+training:
+  epochs: 400
+  learning_rate: 0.003
+  weight_decay: 0.0
+  feature_mask_probability: 0.1
+  context_edge_drop_probability: 0.1
+  ema_decay: 0.99
+  n_way: 16
+  k_shot: 5
+  langevin_steps: 25
+  langevin_step_size: 0.3
+  inter_weight: 1.0
+  intra_weight: 1.0
+  regularization_weight: 0.1
+  gradient_clip_norm: 10.0
+role: benchmark
+display_name: UniFORM

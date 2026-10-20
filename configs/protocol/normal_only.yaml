@@ -1,0 +1,13 @@
+# Shared by single runs, data preparation defaults and the full benchmark matrix.
+name: normal_only
+dataset:
+  normal_train_fraction: 0.8
+  normal_validation_fraction: 0.1
+  normal_label: majority
+  test_protocol: remaining_normals_plus_all_anomalies
+  feature_policy: tu_or_degree
+evaluation:
+  threshold_source: validation_normals
+  threshold_method: held_out_normal_quantile
+  threshold_quantile: 0.99
+  model_selection: final_epoch

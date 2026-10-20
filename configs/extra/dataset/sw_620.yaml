@@ -1,0 +1,9 @@
+name: SW-620
+max_nodes: 113
+scale: large
+data_root: data/TU
+batch_size: 512
+latent_dim: 512
+categorical_tail_dim: 65
+reported_graphs: 40532
+reported_node_features: 65

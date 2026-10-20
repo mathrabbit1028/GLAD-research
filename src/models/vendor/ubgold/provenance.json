@@ -1,0 +1,50 @@
+{
+  "retrieved": "2026-10-19",
+  "repository": "https://github.com/UB-GOLD/UB-GOLD",
+  "commit": "c940457bc3be46fbd26cdaea12386a5c0a82f697",
+  "files": {
+    "cvtgad.py": {
+      "source_path": "GAOOD/nn/cvtgad.py",
+      "upstream_sha256": "06a72f0f1a9443d94c59e3d758fdacfea34b893b89f300f2153440909eea82a5",
+      "local_sha256": "d33713f7c8c561b7c568077369d205ee18a9cebbddbcdcb89eb415c87a078614"
+    },
+    "signet.py": {
+      "source_path": "GAOOD/nn/signet.py",
+      "upstream_sha256": "c445e935775e1d2ad418429a07009a7be1fd6a82bb187d277b27fa2e7a0983a9",
+      "local_sha256": "c445e935775e1d2ad418429a07009a7be1fd6a82bb187d277b27fa2e7a0983a9"
+    },
+    "gladc.py": {
+      "source_path": "GAOOD/nn/gladc.py",
+      "upstream_sha256": "96e0ec00138632270ae10d250e53c973533a6f3cb3d74c7453bfc910bcb1b902",
+      "local_sha256": "96e0ec00138632270ae10d250e53c973533a6f3cb3d74c7453bfc910bcb1b902"
+    },
+    "ocgtl.py": {
+      "source_path": "GAOOD/nn/ocgtl.py",
+      "upstream_sha256": "90e6a008e961beb83c0e47fcebd124b707cd921b96378245692f74ddc2341061",
+      "local_sha256": "90e6a008e961beb83c0e47fcebd124b707cd921b96378245692f74ddc2341061"
+    },
+    "encoder.py": {
+      "source_path": "GAOOD/nn/encoder.py",
+      "upstream_sha256": "a107a3d40ce59509c9fe7608e691aff81f058a0b6cb21a2fa4684321249578d4",
+      "local_sha256": "a107a3d40ce59509c9fe7608e691aff81f058a0b6cb21a2fa4684321249578d4"
+    }
+  },
+  "author_repositories": {
+    "ocgtl": {
+      "url": "https://github.com/boschresearch/GraphLevel-AnomalyDetection",
+      "commit": "7b2295d477f2ef48cd270c137710bae0445b5481"
+    },
+    "signet": {
+      "url": "https://github.com/yixinliu233/SIGNET",
+      "commit": "4c6799d89e8d2b1ecf06bbd33552a87ebe06c789"
+    },
+    "cvtgad": {
+      "url": "https://github.com/jindongli-Ai/CVTGAD",
+      "commit": "dc5f896e3a3c61c43781c365395820d8688aa3bb"
+    },
+    "gladc": {
+      "url": "https://github.com/XuexiongLuoMQ/GLADC",
+      "commit": "3fe89213bde017394189c09832a4feabec9b2158"
+    }
+  }
+}

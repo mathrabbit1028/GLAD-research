@@ -1,71 +1,376 @@
-# GLAD Research
+# GLAD Lab
 
-TU 그래프 데이터셋에서 그래프 수준 이상 탐지 모델을 같은 데이터 분할과 평가 절차로 비교하는 프로젝트입니다. 실험 설정, 모델 구현, 데이터 처리, 평가 및 결과 집계를 분리해 모델을 추가해도 공통 실행 코드를 수정하지 않도록 구성했습니다.
+A terminal framework with GPU-only execution for developing graph-level anomaly
+detectors and comparing them with nine published benchmark methods. Your candidate models
+and the benchmark baselines use the same data splits, features, calibration
+and evaluation pipeline.
 
-## 프로젝트 구조
+The source comparison is
+[`reports/normal_only_graph_anomaly_detection_report.pdf`](reports/normal_only_graph_anomaly_detection_report.pdf).
+The nine methods are comparison baselines: **LGKDE, SIGNET, MUSE, UniFORM,
+CVTGAD, GLADC, OCGIN, OCGTL and GLocalKD**. Your methods belong in the separate
+candidate model area; AGDiff is already registered there.
+
+MUSE is independently implemented and UniFORM is an experimental paper-based
+adaptation with unverified fidelity. Configuring a baseline does not establish
+reproduction of its published scores. [Method notes](docs/methods.md) and
+[source metadata](reports/methods.json) record these distinctions.
+
+**Tests, terminal UI execution, training and evaluation remain deferred at the
+user's request. This interface has not been runtime validated.**
+
+## 1. Install and open the terminal UI
+
+Use Python 3.10 on Linux x86_64 with an NVIDIA GPU and a driver supporting
+CUDA 12.1. `requirements.txt` is the single environment definition. It pins
+CUDA builds of PyTorch, torch-scatter and DGL alongside all framework/UI
+dependencies:
+
+```bash
+python -m pip install -r requirements.txt
+python launch_tui.py
+```
+
+`python -m src.tui` opens the same workbench. It runs in an interactive terminal,
+including SSH, using Python's curses module. No desktop display is required.
+Use `ssh -t` when your connection does not allocate a terminal. For long runs,
+start the UI inside tmux or screen so you can reconnect after an SSH disconnect.
+A 100-column by 30-row terminal is comfortable; the minimum is 60 by 16.
+If curses is missing, use a Python build with ncurses support.
+
+In **Execution settings**, set **Experiment Python** to this GPU environment's
+absolute Python path. The UI reads configs without importing model dependencies.
+Opening the UI, editing profiles, previewing and exporting results do not require
+a GPU. Only **Start experiment** launches training/evaluation workers.
+
+Training and evaluation require CUDA. Start discovers usable GPUs in the
+selected experiment interpreter and checks a small CUDA operation on each.
+If LGKDE is selected, it also checks DGL graph transfers. With no available
+GPU, run-directory creation and all training/evaluation jobs are blocked. Direct
+`src.train` and `src.evaluate` entry points enforce the same GPU requirement
+before loading datasets. There is no CPU fallback. Legacy profiles using
+`auto` select CUDA and fail if it is unavailable; CPU selections are rejected.
+The manifest records the GPU pool, assignments, PyTorch/CUDA and, when used, DGL.
+
+### Repair an existing DGL installation
+
+`Device API cuda is not enabled` means LGKDE is moving graphs to CUDA with a
+CPU-only DGL installation. In an existing environment whose PyTorch build uses
+CUDA 12.1, replace just DGL using that environment's Python:
+
+```bash
+conda activate agdiff
+python -m pip install --force-reinstall --no-deps --no-cache-dir --only-binary=:all: \
+  --no-index --find-links https://data.dgl.ai/wheels/cu121/repo.html \
+  'dgl==1.1.3+cu121'
+```
+
+This command preserves installed PyTorch/CUDA and other dependencies. For a
+complete environment matching the repository's pins, install `requirements.txt`.
+The [official DGL CUDA wheel index](https://data.dgl.ai/wheels/cu121/repo.html)
+provides the GPU build; the plain PyPI DGL wheel is CPU-only.
+
+`ModuleNotFoundError: No module named 'torchdata.datapipes'` can arise when DGL
+2.1 imports GraphBolt against a TorchData release without DataPipes. This
+framework uses DGL 1.1.3, which does not need that GraphBolt import. Its CUDA
+wheel fixes both the DataPipes dependency and the CPU/CUDA build mismatch.
+See [DGL's GraphBolt import](https://github.com/dmlc/dgl/blob/v2.1.0/python/dgl/graphbolt/base.py)
+and [TorchData's removal notice](https://github.com/pytorch/data/releases).
+
+The `torch.load` FutureWarnings in older PyG releases are separate from this
+CUDA exception. Restart the terminal UI after repairing the environment, select
+the repaired interpreter, and use a new experiment output directory. Existing
+failed run artifacts and frozen source snapshots remain unchanged.
+
+## 2. Configure an experiment
+
+Navigate with **Up/Down** or **k/j**, select with **Enter**, and return with
+**q** or **Esc**. **PgUp/PgDn** and **Home/End** navigate longer menus and views.
+Text fields support arrows, Backspace/Delete and **Ctrl-U** to clear. Enter
+accepts a field; Esc cancels it. See [terminal controls](docs/tui.md).
+
+1. In **Methods**, toggle individual candidates/benchmarks using Space or Enter.
+   **a** selects all, **n** clears, **b** selects only benchmarks, and **c** selects
+   only candidates. AGDiff is a candidate; UniFORM is marked experimental.
+2. In **Datasets**, include/exclude datasets the same way. Missing processed
+   data is marked and must be prepared before starting.
+3. In **Seeds**, choose a count and first seed, or enter exact comma/space-separated
+   seed IDs. Count 5 and first seed 0 produce `0,1,2,3,4`.
+4. In **Execution settings**, set name, **GPUs** (`auto` or IDs such as `0,1`),
+   **Maximum parallel jobs**, minimum free GPU memory, numerical-library threads
+   per job and experiment interpreter. Leave the output directory blank for a
+   timestamped directory; a fixed path must not exist.
+5. In **Hyperparameters**, select a scope, target and parameter, then press Enter
+   to edit its YAML value. **r** clears overrides for that scope/target.
+
+The header shows the job count. The default selection is nine benchmarks x
+12 datasets x five seeds = **540 jobs**. Candidates are selected explicitly.
+Jobs execute in parallel with at most one job per available GPU. The default
+**Maximum parallel jobs = 0** uses the discovered pool; set `1` for sequential
+execution or another positive value to cap concurrency. Each slot covers a
+job's training, calibration and evaluation. **Train + calibrate only** skips final evaluation;
+training-only jobs do not enter comparison results.
+
+**GPUs = auto** discovers all usable devices visible to the experiment interpreter.
+Explicit IDs use that interpreter's `CUDA_VISIBLE_DEVICES` numbering. The default
+minimum free memory is 1024 MiB at discovery; this is not a model memory estimate.
+Reported external compute processes are checked at discovery and before dispatch
+when `nvidia-smi` is available. Checks are advisory and cannot reserve hardware
+against other applications. Use an assigned GPU pool on shared servers.
+See [parallel scheduling details](docs/tui.md#parallel-gpu-jobs).
+
+| Parameter scope | Examples | Applies to |
+|---|---|---|
+| Model | hidden dimension, layers, learning rate, epochs, sample generation | One method across its selected datasets/seeds |
+| Dataset | batch size, maximum node count | One dataset across all selected methods/seeds |
+| Shared protocol | train/calibration fractions, normal class, threshold quantile | Every selected job |
+
+Values retain their types: use `true`/`false` and lists such as `[0.1, 1.0, 10.0]`.
+`max_nodes` accepts `auto` or a positive integer; `normal_label` accepts `majority`
+or an integer PyG class index. Leave references such as `${dataset.max_nodes}`
+at their default unless deliberately overriding them. Modified fields have a `*`.
+Types and supported settings are checked when previewing, saving and starting.
+Changes stay in the profile; source YAML configs are not rewritten. The UI does
+not search hyperparameters or select settings using test scores.
+
+**Profiles** opens JSON profiles from `experiments/` or another typed path, saves
+selections/settings/overrides, or restores suite defaults. Existing desktop GUI
+JSON profiles remain compatible. Update their Python path for this server and
+clear/change a fixed output path before rerunning. **Refresh configs** discovers
+new or edited configs. Keep config IDs stable so saved profiles can find them.
+Paths typed in the UI resolve relative to the repository root; `~` is supported.
+
+**Preview plan** shows the job count, missing processed datasets, profile and
+first resolved job config. It starts no workers and creates no run directory.
+
+## 3. Run, monitor and compare
+
+Choose **Start experiment** to validate the plan, check the selected interpreter's
+GPU, snapshot sources/configs and launch isolated subprocesses. Editing a profile
+while a run is active does not change its frozen setup. Keep environment
+packages and datasets stable during the run.
+
+**Run monitor** shows progress, concurrent jobs with GPU assignments, job status
+and a live log tail. Up/Down selects a job; **Tab** cycles active jobs; **f**
+follows an active job; **s** stops all active process groups and cancels
+pending jobs. **q** returns to the menu while work continues. Full logs remain
+in the job folders. The UI allows one active experiment at a time.
+
+Quitting during a run offers **Keep running** or **Stop and quit**. Ctrl-C also
+requests cancellation and waits for worker cleanup. Completed artifacts remain;
+stopped jobs are not resumable. Start a new experiment for unfinished combinations.
+
+**Results / export** loads the active run or another directory containing
+`manifest.json`. **Show / refresh results** displays AUROC, average precision
+and F1 as mean +/- sample standard deviation in percent, benchmark/candidate
+roles and completed/expected seed counts. CSV/JSON exports include original
+GPU device IDs and UUIDs, while workers use isolated local `cuda:0` devices.
+Partial groups are marked explicitly;
+one seed has no estimated deviation. Return to the results menu and show again
+to refresh a running experiment. **Export CSV / JSON / LaTeX** writes a new folder.
+
+Failed, cancelled and training-only jobs do not contribute evaluation metrics.
+The manifest/logs retain errors; aggregation checks result identities, duplicate
+runs and paired split hashes. Small score differences alone do not establish
+statistical significance.
+
+### AGDiff
+
+Select **agdiff** in **Methods**, then **Hyperparameters > Model > agdiff**.
+Or open [`experiments/agdiff_vs_benchmarks.json`](experiments/agdiff_vs_benchmarks.json)
+under **Profiles**. The full profile selects 600 jobs (AGDiff plus nine benchmarks,
+12 datasets, five seeds); opening it starts none. Its defaults remain 100 VAE
+pretraining epochs, 200 diffusion/detector epochs and 1000 diffusion steps.
+Use **Hyperparameters > Dataset** for batch size; latent width is a model setting.
+Hidden/latent widths, GIN depth, Adam/AdamW, learning rate, weight decay and loss
+weights are wired to the adapter. Unsupported settings are rejected in planning.
+
+Reconstruction blocks and reverse-diffusion checkpointing expose memory controls.
+The existing sparse pseudo-graph approximation above 512 nodes remains, with an
+editable boundary. See [AGDiff notes](docs/agdiff.md) for the model contract,
+settings and implementation limits. No AGDiff runs were performed for this change.
+
+## 4. Add your own model
+
+### Create a candidate
+
+Use **New candidate model** in the terminal UI and enter a unique lowercase ID, such as
+`my_detector`. It creates:
+
+```text
+src/models/candidates/my_detector.py
+configs/models/my_detector.yaml
+```
+
+The starter is a complete example of the interface: it reconstructs pooled
+node features with an MLP. It ignores most graph structure and is not a novel
+method or a published benchmark. Replace its model and objective with your
+own implementation. The terminal UI selects the new candidate, but does not execute it.
+
+You can also copy [`templates/model_adapter.py`](templates/model_adapter.py)
+and [`templates/model_config.yaml`](templates/model_config.yaml) manually,
+rename the YAML ID and adapter module, then choose **Refresh configs**.
+No registry edit or benchmark-file change is needed.
+
+### Implement the adapter contract
+
+Subclass [`BaseAnomalyModel`](src/models/base_model.py). The constructor receives
+`input_dim`, the model config and the selected `torch.device`. Implement:
+
+| Method | Responsibility |
+|---|---|
+| `fit(train_loader, config, device)` | Fit on normal training graphs only. |
+| `anomaly_score(batch)` | Return a finite tensor of shape `[batch.num_graphs]`; larger means more anomalous. |
+| `state_dict()` | Return checkpointable parameters and all fitted scoring state. |
+| `load_state_dict(state)` | Restore everything needed to reproduce scores on the selected device. |
+
+Useful rules for a comparable implementation:
+
+- Infer feature width from `input_dim`; do not hardcode a dataset's feature count.
+- Use the provided device. Handle different graph sizes, isolated nodes,
+  edgeless graphs and final minibatches, including one graph where applicable.
+- Iterate the supplied training loader/subset. Do not reach into its backing
+  dataset to fit on calibration/test graphs, inspect anomaly labels, or choose
+  checkpoints using final-test metrics.
+- Fit reference embeddings, centers, preprocessing statistics and negative
+  generation on training normals only. Keep test graphs out of training and
+  contrastive reference construction.
+- Return one score per graph. Scoring a graph alone or in another batch should
+  retain its meaning; do not use other held-out graphs as an implicit reference.
+- Save training references, normalization statistics and centers along with
+  network weights. Checkpoints load with `weights_only=True`: use tensors and
+  standard dict/list/scalar containers, not pickled custom objects.
+- Use `eval()` and deterministic scoring where appropriate. Expose tunable
+  values in YAML rather than embedding dataset-specific constants in code.
+
+For an ordinary `nn.Module`, saving/restoring its `state_dict()` may be enough.
+A density or memory-based model also needs its fitted reference state.
+The framework handles split creation, threshold calibration, checkpoint files,
+final metrics and score exports.
+
+### Define the model config
+
+A candidate config looks like:
+
+```yaml
+name: my_detector
+role: candidate
+display_name: My detector
+adapter: src.models.candidates.my_detector.CandidateAdapter
+architecture:
+  hidden_dim: 32
+training:
+  epochs: 100
+  learning_rate: 0.001
+```
+
+The filename must be `my_detector.yaml`, and `name` must match it. IDs must be
+unique across candidates and benchmarks. The adapter must be a subclass under
+`src.models.*`. The terminal UI discovers parameter leaves automatically; mappings
+under `architecture`, `training` or additional model settings become editable.
+Metadata fields (`name`, `adapter`, `validator`, `role`, `display_name`, `description`) are
+not hyperparameters.
+
+An optional `validator: src.models.candidates.my_config.validate_config` points
+to a function accepting the resolved model config and raising `ValueError` for
+unsupported settings. Keep that module free of Torch/PyG/DGL imports: the terminal UI
+calls it during planning. The factory also calls it before constructing the
+adapter. AGDiff provides an example in `agdiff_config.py`.
+
+For multiple variants, create separate candidate modules/configs with different
+IDs, or save several terminal UI profiles with different overrides. Model code in
+`src/models/benchmarks/` and pinned sources in `src/models/vendor/` are reserved
+for comparison baselines and their upstream dependencies.
+
+## 5. Data and protocol
+
+The default datasets are **MUTAG, PROTEINS, DD, ENZYMES, DHFR, BZR, COX2, AIDS,
+IMDB-BINARY, NCI1, COLLAB and REDDIT-BINARY**. Their raw/processed files have
+already been prepared by the user. Additional existing datasets are selectable
+separately in the terminal UI.
+
+[`configs/protocol/normal_only.yaml`](configs/protocol/normal_only.yaml) defines:
+
+- 80% of the chosen normal class for fitting, 10% for normal-only calibration,
+  and remaining normals for testing; integer rounding applies.
+- Every other class held out as anomalies for final testing. The majority class
+  is normal, with the lowest PyG index breaking ties. ENZYMES defaults to class
+  0 versus its other five classes.
+- TU node features retained; featureless nodes receive `[1, log(1 + degree)]`.
+- Fixed final epochs for model selection and a threshold at the 99th percentile
+  of held-out normal calibration scores.
+- AUROC, anomaly-positive average precision, F1, accuracy, latency and CUDA memory
+  where available. AP uses stepwise precision-recall integration.
+
+These are disclosed local comparison settings, not recovered optimal settings
+for every paper. [Protocol notes](docs/protocol.md) explain details. Avoid using
+test scores to repeatedly tune your candidate if you want an unbiased final
+comparison. Shared terminal UI protocol changes are saved in the profile and manifest.
+
+To add another dataset, create `configs/dataset/<id>.yaml` with `name`,
+`data_root`, `max_nodes: auto`, `batch_size` and any method-related metadata
+such as `latent_dim`. Prepare its TU files under
+`data/TU/<NAME>/{raw,processed}/`, then choose **Refresh configs** in the terminal UI. A future rebuild from
+local raw files can use `python scripts/prepare_tu_data.py --dataset NAME`.
+Only add its ID to `configs/suite/default.yaml` if it should become preselected
+by default. The preparation script does not download data.
+
+## 6. Files and reproducibility
 
 ```text
 configs/
-  config.yaml             공통 실행·평가 설정
-  model/*.yaml            모델별 어댑터와 학습 설정
-  dataset/*.yaml          데이터셋별 분할·배치 설정
-data/TU/                  TU 원본 파일(raw); processed 파일은 로컬 생성
-src/data/                데이터 로딩과 분할
-src/models/              공통 모델 인터페이스와 모델별 어댑터
-src/evaluation/          점수 수집과 평가 지표
-src/utils/               설정, seed, 집계, 통계 검정, 표 생성
-src/train.py             학습 및 체크포인트 저장
-src/evaluate.py          체크포인트 기반 독립 평가
-scripts/                 전체 조합 실행과 논문용 표 생성
-outputs/                 체크포인트, 로그, 결과(Git 제외)
+  benchmarks/            nine published baseline configs
+  models/                your candidate configs (AGDiff included)
+  dataset/               default and newly registered datasets
+  extra/dataset/         additional existing datasets
+  protocol/              shared normal-only comparison rules
+  suite/default.yaml     preselected benchmarks/datasets/seeds
+  config.yaml            single-run and protocol composition defaults
+src/
+  tui/                   curses terminal interface; no eager model imports
+  experiments/           catalog, profile/plan validation and shared runner
+  utils/device.py        GPU requirement and CUDA runtime checks
+  models/
+    benchmarks/          published baseline adapters
+    candidates/          your model adapters
+    vendor/              pinned upstream cores, licenses and hashes
+    base_model.py        shared adapter contract
+  data/, evaluation/     splitting, graph features, calibration and metrics
+  train.py, evaluate.py  worker entry points used by the experiment engine
+experiments/             saved JSON profiles
+templates/               candidate module/config starter files
+outputs/experiments/     isolated experiment artifacts
+reports/, docs/          research sources, provenance and implementation notes
+scripts/                 optional automation; terminal UI is the main workflow
 ```
 
-## 공통 실험 규칙
+An experiment directory contains `experiment.json`, `manifest.json`, source and
+data hashes, environment packages and a source snapshot. Each job has its
+planned/resolved configs, exact split indices, log, checkpoint, calibrated
+threshold and final metrics/scores when evaluation was enabled. Completed
+metrics automatically generate `summary/`; terminal UI exports can write new folders.
+Raw/processed data stays in place and is not copied into each source snapshot.
+Model imports use `src.models.benchmarks.*` or `src.models.candidates.*`.
+Saved configs that name an adapter must use these paths; the former root-level
+model import wrappers have been removed.
 
-`configs/dataset/`의 각 파일이 TU 데이터셋 하나를 정의합니다. 현재 등록된 데이터셋은 MUTAG, DD, COX2, ER_MD, SW-620, MOLT-4, PC-3, MCF-7입니다. 다수 클래스를 정상, 소수 클래스를 이상으로 취급하며, seed마다 정상 그래프의 80%를 학습에 사용합니다. 나머지 정상 그래프는 테스트에 사용합니다. 중형 데이터셋은 테스트 정상 수 이하의 이상 그래프를 선택하고, 대형 데이터셋은 모든 이상 그래프를 사용합니다. 사용된 분할 인덱스는 체크포인트에 저장됩니다.
-
-모든 모델 어댑터는 **그래프마다 하나의 점수**를 반환하며 높은 점수가 더 이상임을 뜻합니다. F1 판정 임계값은 학습 정상 그래프 점수의 95번째 백분위수로 정하고 체크포인트에 저장합니다. 테스트 데이터는 임계값 선택에 사용하지 않습니다. 평가는 AUC, F1, Accuracy, 그래프당 추론 시간, CUDA 최대 메모리를 기록합니다. CPU 실행에서는 CUDA 메모리 값이 비어 있습니다.
-
-모델 구조, epoch, optimizer 같은 값은 해당 `configs/model/*.yaml`에서 지정합니다. 공통 규칙과 다른 실험을 할 때는 설정과 결과를 별도로 기록해야 합니다.
-
-## 데이터 준비
-
-`processed/`는 Git에서 제외합니다. TU 원본 파일을 `data/TU/<데이터셋>/raw/`에 준비한 뒤 아래 명령으로 PyTorch Geometric 처리 파일을 생성하세요. 기본 명령은 `configs/dataset/`에 등록된 전체 데이터셋을 처리하며, `--dataset MUTAG`처럼 지정 데이터셋만 만들 수도 있습니다. `--force`는 기존 처리 파일을 다시 생성합니다. 이 스크립트는 다운로드하지 않고, 필요한 raw 파일이 없으면 파일 경로를 표시하며 중단합니다.
+The optional CLI uses the same engine and saved profiles:
 
 ```bash
-python scripts/prepare_tu_data.py
-python scripts/prepare_tu_data.py --dataset MUTAG
+python scripts/run_benchmarks.py --profile experiments/my_comparison.json
 ```
 
-원본 데이터는 각 TU 데이터셋의 배포 조건을 확인해 별도로 준비해야 합니다.
+For example, append `--gpus cuda:0 cuda:1 --max-parallel-jobs 2` to restrict an
+automated run to two visible GPUs. Saved profiles store `gpu_devices`,
+`max_parallel_jobs` and `min_free_gpu_memory_mb`; older profiles inherit defaults.
 
-## 설치와 단일 실행
+Existing single-run entry points remain available for development, for example
+`python -m src.train model=my_detector dataset=mutag seed=0`.
+They use `outputs/runs/<model>/<DATASET>/seed<seed>/` by default and can overwrite
+a previous direct run at the same path. TUI/matrix experiments require new
+output directories and preserve prior runs.
 
-프로젝트 루트에서 실행합니다. PyTorch와 PyTorch Geometric을 사용 장치에 맞게 설치한 뒤 필요한 패키지를 설치하세요.
-
-```bash
-pip install -r requirements.txt
-python -m src.train dataset=mutag seed=0
-python -m src.evaluate --checkpoint outputs/checkpoints/<모델명>_MUTAG_seed0.pt
-```
-
-학습 명령은 `configs/config.yaml`의 기본 모델을 사용합니다. 다른 모델은 `model=<configs/model의 파일명>`으로 선택합니다. 데이터셋도 `dataset=<configs/dataset의 파일명>`으로 선택합니다. 실행 장치는 `device=auto`(CUDA 우선), `device=cpu`, `device=cuda` 중 하나로 지정할 수 있습니다. 설정 값은 `model.training.learning_rate=0.0005`처럼 덮어쓸 수 있습니다. 학습이 끝나면 출력된 체크포인트 경로를 평가 명령에 전달하세요.
-
-## 반복 실행과 결과
-
-```bash
-bash scripts/run_all_baselines.sh
-bash scripts/generate_paper_tables.sh
-```
-
-첫 스크립트는 `configs/model/*.yaml`과 `configs/dataset/*.yaml`의 모든 조합을 실행합니다. 조합별 반복 횟수는 `configs/config.yaml`의 `trials` 값이며 seed는 0부터 시작합니다. 실행 로그는 `outputs/logs/`, 체크포인트는 `outputs/checkpoints/`에 저장됩니다. 평가가 완료되면 run별 JSON과 그래프별 점수 CSV가 `outputs/results/`에 생성됩니다. 집계 결과는 `outputs/results/results.csv`, LaTeX 표는 `outputs/results/table.tex`입니다. 두 모델의 결과가 같은 데이터셋과 seed로 정렬되어 있으면 `src/utils/stat_test.py`의 `compare_paired`로 대응 표본 검정을 수행할 수 있습니다.
-
-전체 조합 실행은 데이터셋 규모와 모델 설정에 따라 오래 걸릴 수 있습니다. 실행 전에 YAML의 dataset, model, `trials`, 장치 설정을 확인하세요.
-
-## 모델 추가
-
-1. `src/models/base_model.py`의 `BaseAnomalyModel`을 구현합니다. `fit`은 정상 학습 그래프를 사용하고, `anomaly_score`는 그래프당 점수 하나를 반환해야 합니다. `state_dict`와 `load_state_dict`는 체크포인트 저장·복원을 담당합니다.
-2. `configs/model/<모델명>.yaml`을 만들고 `name`, `adapter`(예: `src.models.<모듈>.<클래스>`), 모델별 학습 설정을 정의합니다. 설정 파일명은 CLI의 `model=` 값이 되고 `name`은 결과에 기록됩니다.
-3. 단일 학습·평가를 먼저 실행해 점수 방향, 체크포인트 복원, 결과 스키마를 확인합니다. 등록된 모델 설정 파일은 전체 조합 스크립트가 자동으로 찾습니다.
-
-새 모델이 같은 TU 분할과 평가기를 사용하면 `src/train.py`와 `src/evaluate.py`에 모델 이름별 분기를 추가할 필요가 없습니다.
+The current framework uses the files and entry points listed above. Obsolete
+framework documentation, dependency snapshots and model wrappers have been
+removed. Existing research data and experiment outputs are retained; historical
+scores do not validate this implementation or terminal UI.

@@ -1,0 +1,8 @@
+outputs/
+data/TU/*/processed/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.hydra/
+.vscode/
+agent/

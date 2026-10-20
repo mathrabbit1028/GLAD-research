@@ -1,0 +1,147 @@
+{
+  "report": "reports/normal_only_graph_anomaly_detection_report.pdf",
+  "scope": "default nine-method benchmark matrix, from page 1 of source report",
+  "published_scores_source": "User report: LGKDE Tables 1 and 5; not local scores",
+  "methods": [
+    {
+      "config": "configs/benchmarks/lgkde.yaml",
+      "name": "LGKDE",
+      "author_repository": "https://github.com/MathAdventurer/LGKDE",
+      "implementation": "pinned official core plus existing local adapter",
+      "adapter": "src/models/benchmarks/lgkde.py",
+      "config_sha256": "895fca5edce1398eb59e99715c740a664277b2a647b40b05be5ef90d9eca404a",
+      "adapter_sha256": "ca08ead1ae31a793729356f4d54042266a970c722fcb193af9e2194d3ec9d8bf",
+      "execution_status": "not_run_for_default_framework",
+      "reproduction_verified": false,
+      "report_published_mean_auroc_percent": 79.37,
+      "report_published_mean_auprc_percent": 84.01,
+      "role": "benchmark"
+    },
+    {
+      "config": "configs/benchmarks/signet.yaml",
+      "name": "SIGNET",
+      "author_repository": "https://github.com/yixinliu233/SIGNET",
+      "implementation": "pinned UB-GOLD core plus existing local adapter",
+      "adapter": "src/models/benchmarks/ubgold.py",
+      "config_sha256": "c05a61988f6f5bb2937b3073610c8b0e8c07d39a4ae06bde4f8b938214380b2e",
+      "adapter_sha256": "f6acf1b25586e48cf5c1c96d3a74e207acd112b9b5ad850c5bd7735d2f3d2ca5",
+      "execution_status": "not_run_for_default_framework",
+      "reproduction_verified": false,
+      "report_published_mean_auroc_percent": 77.34,
+      "report_published_mean_auprc_percent": 69.92,
+      "role": "benchmark"
+    },
+    {
+      "config": "configs/benchmarks/muse.yaml",
+      "name": "MUSE",
+      "author_repository": "https://github.com/kswoo97/GLAD_MUSE",
+      "implementation": "independent implementation; no upstream parity established",
+      "adapter": "src/models/benchmarks/muse.py",
+      "config_sha256": "db26cd73352c9e7c3b0ea4b7b299ab256a1f1044f5a4f15e030bae9a4b583e44",
+      "adapter_sha256": "f513eaaed18ad7323b4e55e5ee5f44cecd45bd8531b8489a10c7e9f5ffc46f72",
+      "execution_status": "not_run_for_default_framework",
+      "reproduction_verified": false,
+      "report_published_mean_auroc_percent": 76.63,
+      "report_published_mean_auprc_percent": 71.93,
+      "role": "benchmark"
+    },
+    {
+      "config": "configs/benchmarks/uniform.yaml",
+      "name": "UniFORM",
+      "author_repository": null,
+      "implementation": "experimental independent graph-level paper adaptation; official repository unverified",
+      "adapter": "src/models/benchmarks/uniform.py",
+      "config_sha256": "c2cbdaabad35358e157918579e340f93554f443a8ac4c1de73a249908d0d4cff",
+      "adapter_sha256": "c06cd86d1f114fa574a70617322169c64d15d295df1c2cbf63db1fd7c9330faa",
+      "execution_status": "not_run_for_default_framework",
+      "reproduction_verified": false,
+      "report_published_mean_auroc_percent": 76.58,
+      "report_published_mean_auprc_percent": 71.03,
+      "role": "benchmark"
+    },
+    {
+      "config": "configs/benchmarks/cvtgad.yaml",
+      "name": "CVTGAD",
+      "author_repository": "https://github.com/jindongli-Ai/CVTGAD",
+      "implementation": "pinned UB-GOLD core plus existing local adapter",
+      "adapter": "src/models/benchmarks/ubgold.py",
+      "config_sha256": "5d6f4f637555c51cdbeae782b399cbf69d6c480c5ca13c686664f1581a9046b7",
+      "adapter_sha256": "f6acf1b25586e48cf5c1c96d3a74e207acd112b9b5ad850c5bd7735d2f3d2ca5",
+      "execution_status": "not_run_for_default_framework",
+      "reproduction_verified": false,
+      "report_published_mean_auroc_percent": 76.03,
+      "report_published_mean_auprc_percent": 73.77,
+      "role": "benchmark"
+    },
+    {
+      "config": "configs/benchmarks/gladc.yaml",
+      "name": "GLADC",
+      "author_repository": "https://github.com/XuexiongLuoMQ/GLADC",
+      "implementation": "pinned UB-GOLD core plus existing local adapter",
+      "adapter": "src/models/benchmarks/ubgold.py",
+      "config_sha256": "f537d4b1675888072df3bac0360b952a105da33c51e71fec1034957af894c25f",
+      "adapter_sha256": "f6acf1b25586e48cf5c1c96d3a74e207acd112b9b5ad850c5bd7735d2f3d2ca5",
+      "execution_status": "not_run_for_default_framework",
+      "reproduction_verified": false,
+      "report_published_mean_auroc_percent": 71.63,
+      "report_published_mean_auprc_percent": 66.71,
+      "role": "benchmark"
+    },
+    {
+      "config": "configs/benchmarks/ocgin.yaml",
+      "name": "OCGIN",
+      "author_repository": "https://github.com/LingxiaoShawn/GLOD-Issues",
+      "implementation": "OCGTL authors alternative GIN core via UB-GOLD plus local wrapper",
+      "adapter": "src/models/benchmarks/ocgin.py",
+      "config_sha256": "f5dccef2b53093a618ab1d12f1682dd8edbbdd14ee96c095324bdb496e22b04f",
+      "adapter_sha256": "e703d6c45726eb436a81df12d950259e9227886ee0f9404a64123a7ec6f67e3a",
+      "execution_status": "not_run_for_default_framework",
+      "reproduction_verified": false,
+      "report_published_mean_auroc_percent": 71.34,
+      "report_published_mean_auprc_percent": 70.28,
+      "role": "benchmark"
+    },
+    {
+      "config": "configs/benchmarks/ocgtl.yaml",
+      "name": "OCGTL",
+      "author_repository": "https://github.com/boschresearch/GraphLevel-AnomalyDetection",
+      "implementation": "pinned UB-GOLD core plus existing local adapter",
+      "adapter": "src/models/benchmarks/ubgold.py",
+      "config_sha256": "6b82a72c61f2b9772c3735973224c9e632888b43a864251a5abeb3540809285c",
+      "adapter_sha256": "f6acf1b25586e48cf5c1c96d3a74e207acd112b9b5ad850c5bd7735d2f3d2ca5",
+      "execution_status": "not_run_for_default_framework",
+      "reproduction_verified": false,
+      "report_published_mean_auroc_percent": 70.86,
+      "report_published_mean_auprc_percent": 67.3,
+      "role": "benchmark"
+    },
+    {
+      "config": "configs/benchmarks/glocalkd.yaml",
+      "name": "GLocalKD",
+      "author_repository": "https://github.com/RongrongMa/GLocalKD",
+      "implementation": "existing independent adapter of official architecture",
+      "adapter": "src/models/benchmarks/glocalkd.py",
+      "config_sha256": "06db869bd47fcedcb4abd51e3583b88000b0722ead851ad7916d6a2d5c8a6729",
+      "adapter_sha256": "9a41abbd3141a2effbdb56af8d8d9c2e9a22e2cebb49bf23e77f9db03034c930",
+      "execution_status": "not_run_for_default_framework",
+      "reproduction_verified": false,
+      "report_published_mean_auroc_percent": 70.25,
+      "report_published_mean_auprc_percent": 66.38,
+      "role": "benchmark"
+    }
+  ],
+  "existing_core_provenance": [
+    "src/models/vendor/lgkde/provenance.json",
+    "src/models/vendor/ubgold/provenance.json"
+  ],
+  "new_reference_sources": {
+    "muse": "https://arxiv.org/html/2410.20366v1",
+    "uniform": "https://ojs.aaai.org/index.php/AAAI/article/view/33369/35524",
+    "ocgin": "https://github.com/boschresearch/GraphLevel-AnomalyDetection/tree/7b2295d477f2ef48cd270c137710bae0445b5481"
+  },
+  "notes": [
+    "No tests, smoke runs, training, scoring, or dependency installation performed for this report setup.",
+    "MUSE source clone was not executed: automatic approval review unavailable (selected model at capacity). Independent paper implementation provided instead.",
+    "UniFORM settings and implementation are provisional; no official source or exact TU reproduction verified."
+  ]
+}

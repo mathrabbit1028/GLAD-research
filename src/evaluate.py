@@ -9,6 +9,7 @@ from .data.datamodule import TUDataModule
 from .evaluation.evaluator import Evaluator
 from .models.factory import create_model
 from .utils.seed import set_seed
+from .utils.device import require_cuda, require_cuda_available
 
 
 def main() -> None:
@@ -16,12 +17,13 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--checkpoint", required=True)
     args = parser.parse_args()
+    require_cuda_available()
     root = Path(__file__).resolve().parents[1]
     checkpoint = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
     cfg = _wrap(checkpoint["config"])
+    device = require_cuda(cfg.device, require_dgl=cfg.model.name == 'lgkde')
+    cfg.device = str(device)
     set_seed(int(cfg.seed), bool(cfg.reproducibility.deterministic))
-    device = torch.device("cuda" if cfg.device == "auto" and torch.cuda.is_available()
-                          else "cpu" if cfg.device == "auto" else cfg.device)
     data_cfg = _wrap(dict(cfg.dataset))
     data_cfg.data_root = str(root / data_cfg.data_root)
     data = TUDataModule(data_cfg, int(cfg.seed), split=checkpoint["split"])

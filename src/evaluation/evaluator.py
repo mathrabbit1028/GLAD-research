@@ -41,7 +41,7 @@ class Evaluator:
         return labels, scores, (1000 * elapsed / count if count else None), memory
 
     def calibrate(self, model: BaseAnomalyModel, normal_loader: DataLoader, quantile: float) -> float:
-        """Set a score threshold from normal training graphs only."""
+        """Set a threshold using the configured normal-only calibration loader."""
         if not 0 < quantile < 1:
             raise ValueError("threshold_quantile must be between zero and one")
         _, scores, _, _ = self.collect(model, normal_loader)

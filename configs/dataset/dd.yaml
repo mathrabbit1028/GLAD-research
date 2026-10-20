@@ -1,10 +1,10 @@
 name: DD
+max_nodes: auto
 scale: moderate
 data_root: data/TU
-normal_train_fraction: 0.8
-test_protocol: remaining_normals_plus_equal_or_fewer_anomalies
-batch_size: 16
+batch_size: 2
 latent_dim: 16
-categorical_tail_dim: 89
+categorical_tail_dim: 0
 reported_graphs: 1178
 reported_node_features: 89
+download_url: https://www.chrsmrrs.com/graphkerneldatasets/DD.zip

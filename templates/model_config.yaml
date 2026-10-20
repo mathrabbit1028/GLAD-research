@@ -1,0 +1,9 @@
+name: my_model
+display_name: My model
+role: candidate
+adapter: src.models.candidates.my_model.CandidateAdapter
+architecture:
+  hidden_dim: 32
+training:
+  epochs: 100
+  learning_rate: 0.001

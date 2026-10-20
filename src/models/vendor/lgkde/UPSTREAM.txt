@@ -1,0 +1,30 @@
+Official source: https://github.com/MathAdventurer/LGKDE
+Commit: 1bba5ef00067230fa327a630d67cabbd53fdf523
+Retrieved: 2026-10-16
+License: MIT (LICENSE retained)
+model.py and losses.py are copied unchanged.
+ng.py has two compatibility/correctness changes:
+- Clone node attributes before an in-place feature swap. DGL graph.clone()
+  shares feature tensors; otherwise generation changes the normal reference.
+- Construct the dense adjacency from edges with numpy.add.at instead of
+  g.adj().to_dense(), avoiding DGL's optional version-specific sparse library.
+  Parallel edges retain their multiplicity.
+
+The adapter uses the released architecture, spectral/feature generator,
+log-ratio objective, and Adam settings from configs/MUTAG.yaml. It uses the
+local TU feature preprocessing, normal-only splits and minibatch sizes.
+It trains fixed epochs, without the upstream trainer's test-metric checkpoint
+selection. Scoring uses every training reference with exact weighted chunk
+means, instead of the upstream trainer's final training batch only.
+The default framework calibrates thresholds on held-out normals. Earlier
+integration runs used training-normal scores; neither uses test scores.
+These are common-protocol runs, not exact reproductions of the paper table.
+CPU dependency compatibility was tested with DGL 1.1.3/PyTorch 2.5.1/Python 3.10;
+the upstream README recommends a different, newer DGL/CUDA environment.
+
+Performance integration: src/models/benchmarks/lgkde_distance.py subclasses DGMMD and
+vectorizes its graph-pair kernel means via normalized membership matrices.
+The official model.py remains byte-for-byte unchanged. Values and parameter
+gradients are checked against official loops for both within-set and cross-set
+MMD. Floating-point reduction order differs; numerical training trajectories
+need not be bit-identical to the loop implementation.

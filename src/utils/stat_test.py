@@ -9,7 +9,7 @@ def compare_paired(
     csv_path: str | Path, proposed: str, baseline: str, dataset: str, metric: str = "auc",
 ) -> dict[str, int | float]:
     """Compare two methods using scores from matching dataset seeds."""
-    if metric not in ("auc", "f1", "accuracy"):
+    if metric not in ("auc", "average_precision", "f1", "accuracy"):
         raise ValueError("Unsupported metric")
     by_seed = defaultdict(dict)
     with open(csv_path, newline="") as handle:
