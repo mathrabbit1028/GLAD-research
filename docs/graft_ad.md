@@ -1,10 +1,10 @@
 # GRAFT-AD: Graph-prior Adaptation for Graph-level Anomaly Detection
 
 **Status:** experimental candidate implemented as `graft_ad`. This document
-describes the research design and the initial local implementation. No model
-tests, training, evaluation or terminal UI execution have been performed.
-Syntax, configuration composition and static planning checks do not establish
-runtime correctness or performance.
+describes the research design and the initial local implementation. A local
+MUTAG generator-only diagnostic exercised control reuse and screening. Neural
+model training, evaluation and terminal UI execution have not been performed locally;
+the full detector pipeline and performance remain unvalidated.
 
 **Core idea:** adapt GraphPFN's synthetic graph prior to normal training graphs,
 then intervene on its structural and attribute mechanisms to generate diverse,
@@ -173,6 +173,16 @@ Fix two training-derived quantiles $\tau_{\mathrm{near}}<\tau_{\mathrm{far}}$
 before generation. These are generation gates, separate from the framework's
 held-out calibration threshold.
 
+Normal controls have a separate acceptance threshold: the fixed
+`generation.base_quantile` quantile of the same leave-one-out normal distances
+(default 0.98). Replay the exact parameters and seeds retained during prior
+matching before trying fresh jittered draws, then cache accepted controls. A
+control must also satisfy the anchor matching tolerance when
+`require_normal_base=true`. This control gate is independent of the lower
+negative-screening cutoff; it does not provide positive labels for synthetic
+graphs. A retained intervention must increase $r$ relative to its own control,
+in addition to passing the following negative gates.
+
 - Reject candidates violating representation or domain constraints.
 - Discard candidates with $r\leq\tau_{\mathrm{near}}$ from negative supervision:
   they may be normal or ambiguous. Do not relabel them as positives.
@@ -327,10 +337,12 @@ executed for this implementation.
   largest-component fractions, bounded wedge-based clustering estimates, feature
   means/stds and edge-feature differences. There is no separate community-fitting
   algorithm or motif counter. Constant descriptor dimensions are dropped.
-- **Generation:** each proposal and its unperturbed control share a sampling
-  seed. By default the control must pass the near-normal gate and the anchor
-  matching tolerance. Exact no-ops, negligible descriptor changes and changes
-  above `max_descriptor_displacement` are rejected. Coupling interventions
+- **Generation:** build a bounded bank of controls, replaying matched samples
+  before fresh jittered draws. By default each control must pass the separate
+  98th-percentile LOO-normal gate and the anchor matching tolerance. Each proposal
+  shares its control's seed. Exact no-ops, negligible changes, non-increasing
+  anomaly distance, duplicate candidates within a family and changes above
+  `max_descriptor_displacement` are rejected. Coupling interventions
   permute a fraction of native feature rows, preserving their marginals. No
   independent attribute/coupling family is enabled for degree-derived features.
 - **Quotas:** the easy-negative fraction is enforced on the actual retained
@@ -360,13 +372,15 @@ comparisons with alternative generators remain research work.
 | Prior anchor limit / matches per anchor | 32 / 2 |
 | Matching attempts per anchor / tolerance | 16 / 2.5 |
 | Verifier neighbors / near and far quantiles | 5 / 0.8 and 0.98 |
+| Control quantile / target controls / proposal budget | 0.98 / 32 / 256 |
 | Target negatives per family / proposal budget | 32 / 256 |
 | Minimum retained per family / easy fraction | 4 / 0.25 |
 | Strengths | 0.25, 0.75, 1.5 |
 | Detector epochs / learning rate | 100 / 0.001 |
 | Ranking loss weight | 0 (disabled) |
 
-These are development defaults, not tuned or runtime-validated settings. The
+These are development defaults, not tuned on benchmark performance. The full
+neural pipeline has not been runtime validated. The
 verifier requires at least two training graphs, varying descriptors and distinct
 near/far quantiles. Degenerate normal collections or poor prior coverage can
 fail explicitly. Final real minibatches may still contain just one graph.
@@ -392,6 +406,57 @@ the existing NumPy/SciPy/Torch/PyG dependencies and does not import `graphpfn`,
 DGL or predictor weights. No dependency pins were changed. If upstream code is
 adopted later, preserve its notices and pin a revision; package installation is
 not a drop-in integration with the current environment.
+
+### Troubleshooting an empty negative pool
+
+If every family reports `base_rejected=256`, generation stopped at the control
+gate: no candidate reached the negative screen. A reported failure had
+`gate_near=0.408445` and `gate_far=2.561246`. The earlier implementation accepted
+prior matches within distance 2.5, discarded their sampling seeds, then required
+fresh controls to lie inside the much tighter near cutoff. Repeating more
+family proposals did not fix that mismatch.
+
+The corrected implementation preserves matched draws and uses a separate,
+predeclared control quantile. The new defaults are:
+
+```yaml
+generation:
+  base_quantile: 0.98
+  control_samples: 32
+  control_attempts: 256
+```
+
+The negative near/far gates, anchor tolerance, displacement cap and actual
+easy-negative fraction remain enforced. There is no automatic gate relaxation.
+Old model configs without the three new fields remain valid and use defaults
+(control count/budget fall back to their per-family counterparts). Generation
+metadata records `screening_version: 2`, the control gate and replay counts.
+
+Update the working source and start a **new experiment** with a fresh output
+directory. Existing experiment folders execute frozen copies under `source/`;
+restarting their old worker command still imports the earlier implementation.
+Refresh configs/reopen the terminal UI if it was already open, and initially
+select just GRAFT-AD, the failed dataset and seed to check the correction.
+
+The log now prints a `graft_ad controls={...}` report before family generation:
+
+- `normal_gate` counts controls outside the separately configured control gate;
+  its distance min/median/max reveal normal-prior mismatch.
+- `anchor_match` counts controls outside the retained anchor tolerance.
+- Family `ambiguous`, `not_farther`, `too_far` and `duplicate` counts distinguish
+  negative-screening failures from control rejection.
+- `eligible_moderate`, `eligible_easy` and `retained_before_minimum` expose pools
+  that failed the easy-negative quota or minimum family count.
+
+If no controls pass, the error reports their gate and distances immediately.
+This remains a prior-coverage failure that may require feature-schema or prior
+improvements. Disabling `require_normal_base` changes the research protocol;
+it is not the recommended repair for this control-gate bug.
+
+A generator-only diagnostic with 100 local MUTAG normal graphs accepted 32 controls (29 from matched
+replays) and 32 distinct negatives in each of the five families. That check used
+a NumPy seed-0 diagnostic split, not the framework's Torch split or the user's
+remote run. No neural training, held-out scoring or benchmark workers were run.
 
 ## 11. Validation milestones and limits
 

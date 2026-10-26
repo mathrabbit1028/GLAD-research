@@ -46,6 +46,10 @@ generation:
   min_samples_per_family: 4
   easy_fraction: 0.25
   require_normal_base: true
+  # Normal controls use a separate LOO-normal gate, not the hard-negative cutoff.
+  base_quantile: 0.98
+  control_samples: 32
+  control_attempts: 256
   max_descriptor_displacement: 4.0
 training:
   optimizer: AdamW

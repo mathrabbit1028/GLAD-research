@@ -26,12 +26,19 @@ class DescriptorVerifier:
             distances = self._distances(query)
             distances[np.arange(len(query)), np.arange(start, start + len(query))] = np.inf
             loo.extend(np.partition(distances, self.k - 1, axis=1)[:, :self.k].mean(axis=1))
-        self.near, self.far = (float(np.quantile(loo, self.settings[key]))
+        self.normal_distances = np.asarray(loo, dtype=np.float64)
+        self.near, self.far = (self.normal_threshold(self.settings[key])
                                for key in ("near_quantile", "far_quantile"))
         if self.far - self.near <= self.settings["scale_epsilon"]:
             raise ValueError("GRAFT-AD verifier quantiles coincide; normal descriptors are too degenerate")
         self.fitted = True
         return self
+
+    def normal_threshold(self, quantile):
+        """A fixed training-normal LOO quantile, independent of negative screening."""
+        if not 0 < quantile < 1:
+            raise ValueError("GRAFT-AD normal-control quantile must be between zero and one")
+        return float(np.quantile(self.normal_distances, quantile))
 
     def transform(self, values):
         return ((np.asarray(values) - self.center) / self.scale)[..., self.active]
@@ -60,4 +67,4 @@ class DescriptorVerifier:
 
     def state_dict(self):
         return {key: getattr(self, key) for key in
-                ("center", "scale", "active", "references", "k", "near", "far")}
+                ("center", "scale", "active", "references", "normal_distances", "k", "near", "far")}

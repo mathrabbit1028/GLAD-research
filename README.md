@@ -9,14 +9,15 @@ The source comparison is
 [`reports/normal_only_graph_anomaly_detection_report.pdf`](reports/normal_only_graph_anomaly_detection_report.pdf).
 The nine methods are comparison baselines: **LGKDE, SIGNET, MUSE, UniFORM,
 CVTGAD, GLADC, OCGIN, OCGTL and GLocalKD**. Your methods belong in the separate
-candidate model area; AGDiff and the experimental GRAFT-AD are registered there.
+candidate model area. Candidate documentation: [AGDiff](docs/agdiff.md) and
+[GRAFT-AD](docs/graft_ad.md).
 
 MUSE is independently implemented and UniFORM is an experimental paper-based
 adaptation with unverified fidelity. Configuring a baseline does not establish
 reproduction of its published scores. [Method notes](docs/methods.md) and
 [source metadata](reports/methods.json) record these distinctions.
 
-**Tests, terminal UI execution, training and evaluation remain deferred at the
+**Terminal UI execution, training and evaluation remain deferred at the
 user's request. This interface has not been runtime validated.**
 
 ## 1. Install and open the terminal UI
@@ -91,7 +92,7 @@ accepts a field; Esc cancels it. See [terminal controls](docs/tui.md).
 
 1. In **Methods**, toggle individual candidates/benchmarks using Space or Enter.
    **a** selects all, **n** clears, **b** selects only benchmarks, and **c** selects
-   only candidates. AGDiff is a candidate; UniFORM is marked experimental.
+   only candidates. UniFORM is marked experimental.
 2. In **Datasets**, include/exclude datasets the same way. Missing processed
    data is marked and must be prepared before starting.
 3. In **Seeds**, choose a count and first seed, or enter exact comma/space-separated
@@ -173,39 +174,6 @@ Failed, cancelled and training-only jobs do not contribute evaluation metrics.
 The manifest/logs retain errors; aggregation checks result identities, duplicate
 runs and paired split hashes. Small score differences alone do not establish
 statistical significance.
-
-### AGDiff
-
-Select **agdiff** in **Methods**, then **Hyperparameters > Model > agdiff**.
-Or open [`experiments/agdiff_vs_benchmarks.json`](experiments/agdiff_vs_benchmarks.json)
-under **Profiles**. The full profile selects 600 jobs (AGDiff plus nine benchmarks,
-12 datasets, five seeds); opening it starts none. Its defaults remain 100 VAE
-pretraining epochs, 200 diffusion/detector epochs and 1000 diffusion steps.
-Use **Hyperparameters > Dataset** for batch size; latent width is a model setting.
-Hidden/latent widths, GIN depth, Adam/AdamW, learning rate, weight decay and loss
-weights are wired to the adapter. Unsupported settings are rejected in planning.
-
-Reconstruction blocks and reverse-diffusion checkpointing expose memory controls.
-The existing sparse pseudo-graph approximation above 512 nodes remains, with an
-editable boundary. See [AGDiff notes](docs/agdiff.md) for the model contract,
-settings and implementation limits. No AGDiff runs were performed for this change.
-
-### GRAFT-AD
-
-The `graft_ad` candidate uses a local GraphPFN-inspired synthetic graph prior,
-normal-only descriptor matching and screened pseudo-anomalies to train a GIN
-detector. Select it in **Methods** and edit its controls under **Hyperparameters
-> Model > graft_ad**. The
-[`experiments/graft_ad_vs_benchmarks.json`](experiments/graft_ad_vs_benchmarks.json)
-profile compares it with AGDiff and the nine benchmarks (660 planned jobs).
-Opening the profile does not execute it.
-
-This candidate uses existing dependencies; it does not load GraphPFN predictor
-weights. Generation uses bounded host-side sampling, and neural training uses
-the selected CUDA device. Poor normal-prior matches or insufficient screened
-negatives fail explicitly. See [GRAFT-AD design and implementation](docs/graft_ad.md)
-for assumptions, controls and limitations. Model tests, training, evaluation
-and terminal UI execution remain deferred; this implementation is unvalidated.
 
 ## 4. Add your own model
 
@@ -292,7 +260,7 @@ An optional `validator: src.models.candidates.my_config.validate_config` points
 to a function accepting the resolved model config and raising `ValueError` for
 unsupported settings. Keep that module free of Torch/PyG/DGL imports: the terminal UI
 calls it during planning. The factory also calls it before constructing the
-adapter. AGDiff provides an example in `agdiff_config.py`.
+adapter. See the [validator example](src/models/candidates/agdiff_config.py).
 
 For multiple variants, create separate candidate modules/configs with different
 IDs, or save several terminal UI profiles with different overrides. Model code in
@@ -337,7 +305,7 @@ by default. The preparation script does not download data.
 ```text
 configs/
   benchmarks/            nine published baseline configs
-  models/                your candidate configs (AGDiff included)
+  models/                your candidate configs
   dataset/               default and newly registered datasets
   extra/dataset/         additional existing datasets
   protocol/              shared normal-only comparison rules

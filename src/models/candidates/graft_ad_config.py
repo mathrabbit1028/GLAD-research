@@ -12,10 +12,13 @@ FIELDS = {
     "verifier": {"neighbors", "near_quantile", "far_quantile", "scale_epsilon", "distance_chunk_size",
                  "clustering_samples", "edge_samples"},
     "generation": {"families", "strengths", "samples_per_family", "attempts_per_family", "min_samples_per_family",
-                   "easy_fraction", "require_normal_base", "max_descriptor_displacement"},
+                   "easy_fraction", "require_normal_base", "base_quantile", "control_samples", "control_attempts",
+                   "max_descriptor_displacement"},
     "training": {"optimizer", "epochs", "learning_rate", "weight_decay", "gradient_clip_norm",
                  "negatives_per_normal", "negative_weight", "ranking_weight", "ranking_margin"},
 }
+# Older saved model configs retain their shape; these settings have explicit defaults.
+OPTIONAL = {"generation": {"base_quantile", "control_samples", "control_attempts"}}
 
 
 def _integer(value, name, minimum=1):
@@ -36,7 +39,8 @@ def validate_config(config):
         section = config.get(name)
         if not isinstance(section, Mapping):
             raise ValueError(f"GRAFT-AD {name} must be a mapping")
-        unknown, missing = set(section) - FIELDS[name], FIELDS[name] - set(section)
+        unknown = set(section) - FIELDS[name]
+        missing = FIELDS[name] - set(section) - OPTIONAL.get(name, set())
         if unknown or missing:
             raise ValueError(f"GRAFT-AD {name}: unknown keys={sorted(unknown)}, missing keys={sorted(missing)}")
         sections[name] = section
@@ -96,6 +100,15 @@ def validate_config(config):
     _number(generation.get("easy_fraction"), "generation.easy_fraction", maximum=1.)
     if type(generation.get("require_normal_base")) is not bool:
         raise ValueError("GRAFT-AD generation.require_normal_base must be true or false")
+    _number(generation.get("base_quantile", .98), "generation.base_quantile", maximum=1., strict=True)
+    if generation.get("base_quantile", .98) == 1:
+        raise ValueError("GRAFT-AD generation.base_quantile must be < 1")
+    controls = generation.get("control_samples", generation["samples_per_family"])
+    control_attempts = generation.get("control_attempts", generation["attempts_per_family"])
+    _integer(controls, "generation.control_samples")
+    _integer(control_attempts, "generation.control_attempts")
+    if controls > control_attempts:
+        raise ValueError("GRAFT-AD control_samples must be <= control_attempts")
     _number(generation.get("max_descriptor_displacement"), "generation.max_descriptor_displacement", strict=True)
     families, strengths = generation.get("families"), generation.get("strengths")
     if (not isinstance(families, list) or not families

@@ -36,8 +36,8 @@ not one of the nine comparison baselines.
 
 [GRAFT-AD](graft_ad.md) is an experimental candidate using an independently
 implemented GraphPFN-inspired prior and controlled pseudo-anomalies. Its adapter
-and configuration are registered; model tests, training and evaluation remain
-deferred, with no performance claims.
+and configuration are registered; neural training/evaluation remain deferred,
+with no performance claims.
 
 ## Method adaptations
 
