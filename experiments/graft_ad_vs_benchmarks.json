@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "name": "GRAFT-AD vs AGDiff and benchmarks",
+  "models": [
+    "graft_ad", "agdiff", "lgkde", "signet", "muse", "uniform",
+    "cvtgad", "gladc", "ocgin", "ocgtl", "glocalkd"
+  ],
+  "datasets": [
+    "mutag", "proteins", "dd", "enzymes", "dhfr", "bzr", "cox2",
+    "aids", "imdb_binary", "nci1", "collab", "reddit_binary"
+  ],
+  "seeds": [0, 1, 2, 3, 4],
+  "device": "cuda",
+  "gpu_devices": [],
+  "max_parallel_jobs": 0,
+  "min_free_gpu_memory_mb": 1024,
+  "threads": 1,
+  "train_only": false,
+  "output_dir": "",
+  "shared_overrides": {},
+  "model_overrides": {},
+  "dataset_overrides": {}
+}

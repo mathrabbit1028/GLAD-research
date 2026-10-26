@@ -34,6 +34,11 @@ code retains AGPL-3.0; the shared MIT notice does not override it.
 The AGDiff candidate is documented separately in [agdiff.md](agdiff.md); it is
 not one of the nine comparison baselines.
 
+[GRAFT-AD](graft_ad.md) is an experimental candidate using an independently
+implemented GraphPFN-inspired prior and controlled pseudo-anomalies. Its adapter
+and configuration are registered; model tests, training and evaluation remain
+deferred, with no performance claims.
+
 ## Method adaptations
 
 

@@ -9,7 +9,7 @@ The source comparison is
 [`reports/normal_only_graph_anomaly_detection_report.pdf`](reports/normal_only_graph_anomaly_detection_report.pdf).
 The nine methods are comparison baselines: **LGKDE, SIGNET, MUSE, UniFORM,
 CVTGAD, GLADC, OCGIN, OCGTL and GLocalKD**. Your methods belong in the separate
-candidate model area; AGDiff is already registered there.
+candidate model area; AGDiff and the experimental GRAFT-AD are registered there.
 
 MUSE is independently implemented and UniFORM is an experimental paper-based
 adaptation with unverified fidelity. Configuring a baseline does not establish
@@ -189,6 +189,23 @@ Reconstruction blocks and reverse-diffusion checkpointing expose memory controls
 The existing sparse pseudo-graph approximation above 512 nodes remains, with an
 editable boundary. See [AGDiff notes](docs/agdiff.md) for the model contract,
 settings and implementation limits. No AGDiff runs were performed for this change.
+
+### GRAFT-AD
+
+The `graft_ad` candidate uses a local GraphPFN-inspired synthetic graph prior,
+normal-only descriptor matching and screened pseudo-anomalies to train a GIN
+detector. Select it in **Methods** and edit its controls under **Hyperparameters
+> Model > graft_ad**. The
+[`experiments/graft_ad_vs_benchmarks.json`](experiments/graft_ad_vs_benchmarks.json)
+profile compares it with AGDiff and the nine benchmarks (660 planned jobs).
+Opening the profile does not execute it.
+
+This candidate uses existing dependencies; it does not load GraphPFN predictor
+weights. Generation uses bounded host-side sampling, and neural training uses
+the selected CUDA device. Poor normal-prior matches or insufficient screened
+negatives fail explicitly. See [GRAFT-AD design and implementation](docs/graft_ad.md)
+for assumptions, controls and limitations. Model tests, training, evaluation
+and terminal UI execution remain deferred; this implementation is unvalidated.
 
 ## 4. Add your own model
 

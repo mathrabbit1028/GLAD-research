@@ -1,0 +1,60 @@
+name: graft_ad
+role: candidate
+display_name: GRAFT-AD
+description: Experimental GraphPFN-inspired prior adaptation and screened pseudo-anomaly training
+adapter: src.models.candidates.graft_ad.GRAFTADAdapter
+validator: src.models.candidates.graft_ad_config.validate_config
+architecture:
+  hidden_dim: 64
+  gin_layers: 3
+  dropout: 0.1
+features:
+  # auto recognizes the shared [1, log(1 + degree)] encoding using training graphs only.
+  mode: auto
+  infer_one_hot_tail: true
+  # Explicit nonoverlapping lists of feature indices override tail inference.
+  one_hot_groups: []
+  categorical_columns: []
+  reference_nodes: 8192
+prior:
+  max_anchors: 32
+  matches_per_anchor: 2
+  match_attempts_per_anchor: 16
+  # Root-mean-square distance in standardized descriptor coordinates.
+  match_tolerance: 2.5
+  max_blocks: 8
+  max_first_level_graphs: 3
+  max_edges: 1000000
+  scm_hidden_dim: 16
+  scm_layers: 2
+  parameter_jitter: 0.1
+  # Added to the framework's seeded torch.initial_seed(), not a fixed experiment seed.
+  seed_offset: 0
+verifier:
+  neighbors: 5
+  near_quantile: 0.8
+  far_quantile: 0.98
+  scale_epsilon: 0.000001
+  distance_chunk_size: 128
+  clustering_samples: 128
+  edge_samples: 2048
+generation:
+  families: [community, degree, attributes, coupling, mixed]
+  strengths: [0.25, 0.75, 1.5]
+  samples_per_family: 32
+  attempts_per_family: 256
+  min_samples_per_family: 4
+  easy_fraction: 0.25
+  require_normal_base: true
+  max_descriptor_displacement: 4.0
+training:
+  optimizer: AdamW
+  epochs: 100
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  gradient_clip_norm: 5.0
+  negatives_per_normal: 1
+  negative_weight: 1.0
+  ranking_weight: 0.0
+  ranking_margin: 1.0
+# Real minibatch size is dataset.batch_size. There is no test-dependent selection.
