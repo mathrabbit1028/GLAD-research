@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "name": "Prior mixture MUTAG initial experiment",
+  "models": ["prior_mixture"],
+  "datasets": ["mutag"],
+  "seeds": [0],
+  "device": "cuda",
+  "gpu_devices": ["cuda:1"],
+  "max_parallel_jobs": 1,
+  "min_free_gpu_memory_mb": 1024,
+  "threads": 1,
+  "train_only": false,
+  "python_executable": "/home/mingeon/.conda/envs/agdiff/bin/python",
+  "output_dir": "",
+  "shared_overrides": {},
+  "model_overrides": {},
+  "dataset_overrides": {}
+}

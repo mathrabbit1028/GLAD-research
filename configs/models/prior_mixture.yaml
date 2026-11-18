@@ -1,0 +1,48 @@
+name: prior_mixture
+display_name: Prior mixture ellipsoids
+role: candidate
+adapter: src.models.candidates.prior_mixture.CandidateAdapter
+validator: src.models.candidates.prior_mixture_config.validate_config
+architecture:
+  hidden_dim: 32
+  layers: 3
+prior:
+  components: 64
+  train_per_component: 512
+  calibration_per_component: 128
+  pilot_per_component: 128
+  max_nodes: 2048
+  feature_mode: auto
+training:
+  ratio_epochs: 100
+  radius_epochs: 100
+  batch_size: 64
+  learning_rate: 0.001
+  gradient_clip: 5.0
+  log_every: 10
+mixture:
+  normal_steps: 1000
+  abnormal_steps: 500
+  restarts: 16
+  tolerance: 0.000001
+  cap: 0.25
+  min_shell_rate: 0.05
+  abnormal_mode: constrained
+geometry:
+  dimension: 16
+  regions: 4
+  min_occupancy: 10
+  shrinkage: 0.1
+  floor: 0.0001
+  initial_quantile: 0.95
+  radius_min: 0.5
+  radius_max: 2.0
+  radius_penalty: 0.01
+  synthetic_positive_fraction: 0.5
+  beta: 5.0
+generation:
+  target_ratio: 1.0
+  proposal_multiplier: 100
+  shell_inner: 0.05
+  shell_outer: 3.0
+  contrast: 0.6931471805599453

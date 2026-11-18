@@ -9,15 +9,28 @@ The source comparison is
 [`reports/normal_only_graph_anomaly_detection_report.pdf`](reports/normal_only_graph_anomaly_detection_report.pdf).
 The nine methods are comparison baselines: **LGKDE, SIGNET, MUSE, UniFORM,
 CVTGAD, GLADC, OCGIN, OCGTL and GLocalKD**. Your methods belong in the separate
-candidate model area. Candidate documentation: [AGDiff](docs/agdiff.md) and
-[GRAFT-AD](docs/graft_ad.md).
+candidate model area; AGDiff is already registered there.
+
+The [prior mixture and multiple ellipsoid candidate](docs/prior_mixture_ellipsoids.md)
+uses graph generators, likelihood-based mixture weights, and synthetic training
+graphs. Select `prior_mixture` in the terminal UI or use the initial MUTAG profile
+at [`experiments/prior_mixture_mutag.json`](experiments/prior_mixture_mutag.json).
+Its [initial experiment report](reports/prior_mixture_initial_experiment.md)
+records passing integration checks and a MUTAG failure caused by insufficient
+prior coverage near the fitted normal regions.
+
+The [GIN alternative](docs/prior_mixture_gin.md), selected as
+`prior_mixture_gin`, trains a general binary GIN on unfiltered samples from the
+two mixtures. Its classifier uses no ellipsoid geometry or sample rejection.
+The [three-seed MUTAG experiment](reports/prior_mixture_gin_experiment.md)
+finds strong synthetic-pilot separation but weak, variable transfer to real anomalies.
 
 MUSE is independently implemented and UniFORM is an experimental paper-based
 adaptation with unverified fidelity. Configuring a baseline does not establish
 reproduction of its published scores. [Method notes](docs/methods.md) and
 [source metadata](reports/methods.json) record these distinctions.
 
-**Terminal UI execution, training and evaluation remain deferred at the
+**Tests, terminal UI execution, training and evaluation remain deferred at the
 user's request. This interface has not been runtime validated.**
 
 ## 1. Install and open the terminal UI

@@ -32,8 +32,14 @@ def main() -> None:
     cfg.dataset.max_nodes = data.max_nodes
     if cfg.model.get("architecture", {}).get("max_nodes") == "auto":
         cfg.model.architecture.max_nodes = data.max_nodes
-    if cfg.evaluation.get("model_selection", "final_epoch") != "final_epoch":
-        raise ValueError("Only fixed final-epoch model selection is implemented")
+    model = create_model(data.dataset.num_features, cfg.model, device)
+    selection = cfg.evaluation.get("model_selection", "final_epoch")
+    internal_selection = getattr(model, "selection_policy", None)
+    if selection != "final_epoch" and selection != internal_selection:
+        raise ValueError("Model does not implement the requested selection policy")
+    # An adapter with its own normal-only selection must not be recorded as
+    # final-epoch training in resolved configs and checkpoints.
+    cfg.evaluation.model_selection = internal_selection or selection
     source = cfg.evaluation.get("threshold_source", "training_normals")
     if source == "validation_normals" and not len(data.validation):
         raise ValueError("validation_normals calibration requires a normal validation split")
@@ -43,7 +49,6 @@ def main() -> None:
     output.mkdir(parents=True, exist_ok=True)
     (output / "resolved_config.yaml").write_text(yaml.safe_dump(to_plain(cfg), sort_keys=False))
     (output / "split.json").write_text(json.dumps(data.split, indent=2) + "\n")
-    model = create_model(data.dataset.num_features, cfg.model, device)
     model.fit(data.train_dataloader(), cfg.model, device)
     calibration = data.train_dataloader(shuffle=False)
     if source == "validation_normals":

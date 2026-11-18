@@ -1,0 +1,101 @@
+name: ae_prior_mixture_gin
+display_name: AE prior mixture GIN (Level B)
+role: candidate
+adapter: src.models.candidates.ae_prior_mixture_gin.CandidateAdapter
+validator: src.models.candidates.ae_prior_mixture_config.validate_config
+architecture:
+  hidden_dim: 32
+  layers: 3
+proposal:
+  name: prior_mixture
+  display_name: Prior mixture ellipsoids
+  role: candidate
+  adapter: src.models.candidates.prior_mixture.CandidateAdapter
+  validator: src.models.candidates.prior_mixture_config.validate_config
+  architecture:
+    hidden_dim: 32
+    layers: 3
+  prior:
+    components: 64
+    train_per_component: 512
+    calibration_per_component: 128
+    pilot_per_component: 128
+    max_nodes: 2048
+    feature_mode: auto
+  training:
+    ratio_epochs: 100
+    radius_epochs: 100
+    batch_size: 64
+    learning_rate: 0.001
+    gradient_clip: 5.0
+    log_every: 10
+  mixture:
+    normal_steps: 1000
+    abnormal_steps: 500
+    restarts: 16
+    tolerance: 1.0e-06
+    cap: 0.25
+    min_shell_rate: 0.0
+    abnormal_mode: constrained
+  geometry:
+    dimension: 16
+    regions: 4
+    min_occupancy: 10
+    shrinkage: 0.1
+    floor: 0.0001
+    initial_quantile: 0.95
+    radius_min: 0.5
+    radius_max: 2.0
+    radius_penalty: 0.01
+    synthetic_positive_fraction: 0.5
+    beta: 5.0
+  generation:
+    target_ratio: 1.0
+    proposal_multiplier: 100
+    shell_inner: 0.05
+    shell_outer: 3.0
+    contrast: 0.6931471805599453
+mode: level_b
+split:
+  seed: 72000
+  fit_fraction: 0.7
+  meta_fraction: 0.15
+ae:
+  hidden_dim: 16
+  identity_logit: 6.0
+mixture:
+  normal_steps: 100
+  abnormal_steps: 60
+  restarts: 4
+  cap: 0.25
+  step_size: 0.05
+  restart_temperature: 0.05
+inner:
+  warmup_steps: 800
+  warmup_lr: 0.001
+  steps: 32
+  learning_rate: 0.01
+  momentum: 0.9
+  weight_decay: 0.0001
+  per_component: 2
+outer:
+  steps: 60
+  learning_rate: 0.003
+  gradient_clip: 5.0
+  select_every: 5
+loss:
+  raw: 1.0
+  gap: 1.0
+  reconstruction: 1.0
+  edit: 1.0
+  anchor: 0.1
+  separation: 1.0
+  edge_budget: 2.0
+  node_budget: 0.5
+sampling:
+  seed: 73000
+  train_per_component: 64
+  meta_per_component: 4
+  select_per_component: 16
+limits:
+  max_nodes: 64

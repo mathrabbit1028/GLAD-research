@@ -1,0 +1,67 @@
+name: ae_prior_mixture_level_c
+display_name: Adaptive prior AE GIN (Level C)
+role: candidate
+adapter: src.models.candidates.ae_prior_mixture_level_c.CandidateAdapter
+validator: src.models.candidates.ae_prior_mixture_level_c_config.validate_config
+mode: level_c
+architecture:
+  hidden_dim: 16
+  layers: 2
+prior:
+  components: 64
+  edge_temperature: 0.67
+  node_temperature: 0.67
+split:
+  seed: 72000
+  fit_fraction: 0.7
+  meta_fraction: 0.15
+ae:
+  hidden_dim: 16
+  identity_logit: 6.0
+ratio:
+  warmup_steps: 400
+  warmup_lr: 0.001
+  steps: 4
+  learning_rate: 0.01
+  momentum: 0.0
+  weight_decay: 0.0001
+  per_component: 1
+  calibration_per_component: 2
+temperature:
+  steps: 4
+  learning_rate: 0.05
+mixture:
+  normal_steps: 40
+  abnormal_steps: 30
+  restarts: 4
+  cap: 0.25
+  step_size: 0.05
+  restart_temperature: 0.05
+inner:
+  warmup_steps: 500
+  warmup_lr: 0.001
+  steps: 8
+  learning_rate: 0.01
+  momentum: 0.9
+  weight_decay: 0.0001
+  per_component: 1
+outer:
+  steps: 30
+  learning_rate: 0.003
+  gradient_clip: 5.0
+  select_every: 5
+loss:
+  raw: 1.0
+  gap: 1.0
+  reconstruction: 1.0
+  edit: 1.0
+  anchor: 0.1
+  separation: 1.0
+  edge_budget: 2.0
+  node_budget: 0.5
+sampling:
+  seed: 91000
+  meta_per_component: 2
+  select_per_component: 8
+limits:
+  max_nodes: 64
